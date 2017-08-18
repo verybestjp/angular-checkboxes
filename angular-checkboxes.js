@@ -64,7 +64,9 @@ angular.module('msieurtoph.ngCheckboxes', [])
     return {
         restrict: 'A',
         require: ['mtCheckbox', '^mtTo', '?ngModel'],
-
+        scope: {
+          name: '@'
+        },
         controller: ['$attrs', '$parse', '$scope', function($attrs, $parse, $scope){
 
             var getter = $parse($attrs.mtCheckbox),
@@ -73,7 +75,7 @@ angular.module('msieurtoph.ngCheckboxes', [])
 
             if ('' === $attrs.mtCheckbox) {
 
-                this.value = !!$attrs.name && '' !== $attrs.name ? $attrs.name : uniqName();
+                this.value = !!$attrs.name && '' !== $attrs.name ? $scope.name : uniqName();
 
             } else if (!angular.isFunction(setter)) {
 
