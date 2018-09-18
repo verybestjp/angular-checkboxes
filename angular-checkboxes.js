@@ -6,8 +6,14 @@ angular.module('msieurtoph.ngCheckboxes', [])
     return {
         restrict: 'A',
         controller: ['$parse', '$attrs', '$scope', function($parse, $attrs, $scope){
-            var getter = $parse($attrs.mtTo),
-                setter = getter.assign,
+            var getter;
+            if ($attrs.ngModel) {
+              getter = $parse($attrs.ngModel);
+            } else {
+              getter = $parse($attrs.mtTo);
+            }
+
+            var setter = getter.assign,
                 _this = this
             ;
 
