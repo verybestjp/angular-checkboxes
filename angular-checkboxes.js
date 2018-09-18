@@ -5,7 +5,9 @@ angular.module('msieurtoph.ngCheckboxes', [])
 .directive('mtTo', ['$timeout', function($timeout){
     return {
         restrict: 'A',
-        controller: ['$parse', '$attrs', '$scope', function($parse, $attrs, $scope){
+        require: '?ngModel',
+        controller: ['$parse', '$attrs', '$scope', '$element', function($parse, $attrs, $scope, $element){
+            var ngModelCtrl = $element.controller('ngModel');
             var getter;
             if ($attrs.ngModel) {
               getter = $parse($attrs.ngModel);
@@ -22,7 +24,11 @@ angular.module('msieurtoph.ngCheckboxes', [])
             };
 
             this.set = function(list){
-                return setter($scope, angular.copy(list));
+                var snapshot = angular.copy(list);
+                setter($scope, snapshot);
+                if ($attrs.ngModel) {
+                  ngModelCtrl.$setViewValue(snapshot);
+                }
             };
 
             this.indexOf = function(elt){
