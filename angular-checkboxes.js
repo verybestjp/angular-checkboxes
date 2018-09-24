@@ -14,17 +14,43 @@ angular.module('msieurtoph.ngCheckboxes', [])
             } else {
               getter = $parse($attrs.mtTo);
             }
-
+            var defaultValue;
+            if ($attrs.mtDefault) {
+              // mt-defaultに値があるとデフォルト値として扱う
+              var tmpValue = $parse($attrs.mtDefault)($scope);
+              if (Array.isArray(tmpValue)) {
+                defaultValue = tmpValue;
+              } else if (Object(tmpValue) === tmpValue) {
+                // objectの場合はキーの配列
+                defaultValue = Object.keys(tmpValue);
+              }
+            }
             var setter = getter.assign,
                 _this = this
             ;
 
-            this.get = function(){
-                return getter($scope) || [];
+            this.get = function(isRef){
+                var value = getter($scope);
+                if (defaultValue && !value) {
+                  return isRef ? defaultValue : angular.copy(defaultValue);
+                }
+                return value || [];
             };
 
             this.set = function(list){
                 var snapshot = angular.copy(list);
+                if (defaultValue && defaultValue.length === snapshot.length) {
+                  var isDefault = true;
+                  for (var i=0; i<defaultValue.length; ++i) {
+                    var it = defaultValue[i];
+                    if (isDefault && -1 === snapshot.indexOf(it)) {
+                      isDefault = false;
+                    }
+                  }
+                  if (isDefault) {
+                    snapshot = null;
+                  }
+                }
                 setter($scope, snapshot);
                 if ($attrs.ngModel) {
                   ngModelCtrl.$setViewValue(snapshot);
@@ -32,7 +58,7 @@ angular.module('msieurtoph.ngCheckboxes', [])
             };
 
             this.indexOf = function(elt){
-                var list = _this.get();
+                var list = _this.get(true);
                 for (var i=0, l=list.length; i<l; i++){
                     if (angular.equals(list[i], elt)) {
                         return i;
